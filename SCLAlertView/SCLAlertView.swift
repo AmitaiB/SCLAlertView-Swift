@@ -40,6 +40,29 @@ public enum SCLActionType {
     case None, Selector, Closure
 }
 
+// Animation Types
+public enum SCLShowAnimationType {
+    case FadeIn,
+    SlideInFromBottom,
+    SlideInFromTop,
+    SlideInFromLeft,
+    SlideInFromRight,
+    SlideInFromCenter,
+    SlideInToCenter,
+    None
+}
+
+public enum SCLHideAnimationType {
+    case FadeOut,
+    SlideOutToBottom,
+    SlideOutToTop,
+    SlideOutToLeft,
+    SlideOutToRight,
+    SlideOutToCenter,
+    SlideOutFromCenter,
+    None
+}
+
 // Button sub-class
 public class SCLButton: UIButton {
     var actionType = SCLActionType.None
@@ -122,6 +145,8 @@ public class SCLAlertView: UIViewController {
     public var fieldCornerRadius : CGFloat = 3.0
     public var buttonCornerRadius : CGFloat = 3.0
     public var iconTintColor: UIColor?
+    public var hideAnimationType: SCLHideAnimationType = .None
+    public var showAnimationType: SCLShowAnimationType = .None
     
     // Actions
     public var hideWhenBackgroundViewIsTapped = false
@@ -561,6 +586,27 @@ public class SCLAlertView: UIViewController {
     
     // Close SCLAlertView
     public func hideView() {
+        switch hideAnimationType {
+        case .FadeOut:
+            fadeOut()
+        case .SlideOutToBottom:
+            slideOutToBottom()
+        case .SlideOutToTop:
+            slideOutToTop()
+        case .SlideOutToLeft:
+            slideOutToLeft()
+        case .SlideOutToRight:
+            slideOutToRight()
+        case .SlideOutFromCenter:
+            slideOutFromCenter()
+        case .SlideOutToCenter:
+            slideOutToCenter()
+        case .None:
+            simplyDisappear()
+        }
+    }
+    
+    private func fadeOut() {
         UIView.animateWithDuration(0.2, animations: {
             self.view.alpha = 0
             }, completion: { finished in
@@ -580,6 +626,68 @@ public class SCLAlertView: UIViewController {
                 self.view.removeFromSuperview()
                 self.selfReference = nil
         })
+    }
+
+    private func slideOutToBottom() {
+        UIView.animateWithDuration(0.3, animations: { 
+            var frame = self.view.frame
+            frame.origin.y += UIScreen.mainScreen().bounds.size.height
+            self.view.frame = frame
+            }) { finished in
+                self.fadeOut()
+        }
+    }
+    
+    private func slideOutToTop() {
+        UIView.animateWithDuration(0.3, animations: {
+            var frame = self.view.frame
+            frame.origin.y -= UIScreen.mainScreen().bounds.size.height
+            self.view.frame = frame
+        }) { finished in
+            self.fadeOut()
+        }
+    }
+    
+    private func slideOutToLeft() {
+        UIView.animateWithDuration(0.3, animations: {
+            var frame = self.view.frame
+            frame.origin.x -= UIScreen.mainScreen().bounds.size.width
+            self.view.frame = frame
+        }) { finished in
+            self.fadeOut()
+        }
+    }
+    
+    private func slideOutToRight() {
+        UIView.animateWithDuration(0.3, animations: {
+            var frame = self.view.frame
+            frame.origin.x += UIScreen.mainScreen().bounds.size.width
+            self.view.frame = frame
+        }) { finished in
+            self.fadeOut()
+        }
+    }
+    
+    private func slideOutToCenter() {
+        UIView.animateWithDuration(0.3, animations: { 
+            self.view.transform = CGAffineTransformConcat(CGAffineTransformIdentity, CGAffineTransformMakeScale(0.1, 0.1))
+            self.view.alpha = 0
+            }) { (finished) in
+                self.fadeOut()
+        }
+    }
+    
+    private func slideOutFromCenter() {
+        UIView.animateWithDuration(0.3, animations: {
+            self.view.transform = CGAffineTransformConcat(CGAffineTransformIdentity, CGAffineTransformMakeScale(3.0, 3.0))
+            self.view.alpha = 0.0
+        }) { finished in
+            self.fadeOut()
+        }
+    }
+    
+    private func simplyDisappear() {
+        view.alpha = 0
     }
     
     func checkCircleIconImage(circleIconImage: UIImage?, defaultImage: UIImage) -> UIImage {
